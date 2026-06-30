@@ -1,0 +1,58 @@
+[
+  {
+    "id": "NB-346",
+    "title": "MCP deferred-tool pre-load idiom",
+    "marker_file": "commands/solve.md",
+    "marker_snippet": "ToolSearch(select: \"mcp__linear__get_issue",
+    "shipped_in": "PR #72",
+    "shipped_at": "2026-05-29"
+  },
+  {
+    "id": "NB-301",
+    "title": "Parallel-session worktree isolation",
+    "marker_file": "skills/solve/walk.md",
+    "marker_snippet": "yanks a parallel session's HEAD",
+    "shipped_in": "dev",
+    "shipped_at": "2026-05-28"
+  },
+  {
+    "id": "NB-311",
+    "title": "Release back-merge via PR",
+    "marker_file": "commands/release.md",
+    "marker_snippet": "## 6. Back-merge the release branch into the integration branch",
+    "shipped_in": "v0.8.1",
+    "shipped_at": "2026-05-27"
+  },
+  {
+    "id": "NB-351",
+    "title": "Pre-flight check matrix (mechanical yes/no) as the developer subagent's tail step",
+    "marker_file": "agents/developer.md",
+    "marker_snippet": "`DONE` is reserved for an all-harness-boxes-\"yes\" report.",
+    "shipped_in": "dev",
+    "shipped_at": "2026-05-30"
+  },
+  {
+    "id": "NB-352",
+    "title": "Problem Read — developer declares its interpretation as a one-line head step",
+    "marker_file": "agents/developer.md",
+    "marker_snippet": "Reading this as:",
+    "shipped_in": "dev",
+    "shipped_at": "2026-05-30"
+  },
+  {
+    "id": "NB-394",
+    "title": "Definition of 1.0 — minimal end-to-end loop roadmap doc",
+    "marker_file": "docs/ROADMAP.md",
+    "marker_snippet": "## Definition of 1.0",
+    "shipped_in": "dev",
+    "shipped_at": "2026-05-30"
+  },
+  {
+    "id": "NB-413",
+    "title": "Specialist tool-grant contract — gate runs markdownlint + enumerated deferred-check hand-off",
+    "marker_file": "skills/solve/gate.md",
+    "marker_snippet": "## 2.5 Gate-mandated checks the reviewer runs",
+    "shipped_in": "dev",
+    "shipped_at": "2026-06-01"
+  }
+]

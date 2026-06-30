@@ -1,0 +1,236 @@
+{
+  "version": "backlogd-standards/v1",
+  "standards": [
+    {
+      "id": "ADR-001",
+      "title": "Visible agent identity in Linear",
+      "status": "Superseded by ADR-006",
+      "assertion": "Agent identity in Linear stays comment-badge based (Tier 0); Tier 1 (MCP delegate, no server) is a gated experiment only; Tier 2 (held actor=app token + webhook server) is rejected and may not be built without superseding this ADR.",
+      "applies-to": {
+        "domains": [
+          "agent-identity",
+          "linear",
+          "runtime"
+        ],
+        "file-patterns": [
+          "skills/linear/**",
+          "commands/**",
+          "agents/**",
+          "docs/guides/po-overview.md"
+        ],
+        "decision-types": [
+          "agent-identity",
+          "runtime-loop",
+          "hosting"
+        ]
+      }
+    },
+    {
+      "id": "ADR-002",
+      "title": "Keyless, OAuth-as-the-user, no server",
+      "status": "Accepted",
+      "assertion": "The runtime loop holds no API key, no stored secret, and runs no backlogd-hosted server — Linear/GitHub are reached only via official OAuth-as-the-user paths (Linear MCP, gh CLI); the sole exception is the one-time, local, setup-only /backlogd:init admin key, never read by the orchestrator or any agent.",
+      "applies-to": {
+        "domains": [
+          "auth",
+          "runtime",
+          "dependencies",
+          "linear"
+        ],
+        "file-patterns": [
+          "**"
+        ],
+        "decision-types": [
+          "secret-custody",
+          "runtime-loop",
+          "hosting",
+          "dependency"
+        ]
+      }
+    },
+    {
+      "id": "ADR-003",
+      "title": "Canonical Linear workspace configuration",
+      "status": "Accepted",
+      "assertion": "A fresh backlogd workspace seeds exactly the canonical set and nothing more — issue labels problem, kind:ops, blocked (agent:* is owned but runtime-created, never seeded), no project labels, and three templates (a Problem issue, a backlogd-problem project with Investigate/Implement/Verify milestones, and a Spec document); kind:* beyond kind:ops and the area:* family are dogfood/per-repo only and are never seeded or adopter-facing.",
+      "applies-to": {
+        "domains": [
+          "linear",
+          "workspace-config",
+          "init"
+        ],
+        "file-patterns": [
+          "scripts/linear_setup.py",
+          "commands/init.md",
+          "docs/guides/workspace-bootstrap.md"
+        ],
+        "decision-types": [
+          "workspace-config",
+          "labels",
+          "templates",
+          "seed"
+        ]
+      }
+    },
+    {
+      "id": "ADR-004",
+      "title": "backlogd is problem-type-agnostic empirical Scrum for an agent team",
+      "status": "Accepted",
+      "assertion": "The framework layer is domain-agnostic Scrum scaffolding that never does domain work — all domain work routes to pluggable, credential-agnostic specialists (each declaring domain, inputs, and non-scope); an instance's value = specialists × standards (the domain DoD); scope is code and non-code alike; backlogd does NOT rebuild Cyrus runtime plumbing or duplicate Linear Diffs.",
+      "applies-to": {
+        "domains": [
+          "identity",
+          "scope",
+          "framework",
+          "specialists",
+          "standards",
+          "scrum"
+        ],
+        "file-patterns": [
+          "**"
+        ],
+        "decision-types": [
+          "identity",
+          "scope",
+          "positioning",
+          "agent-identity",
+          "specialist-contract"
+        ]
+      }
+    },
+    {
+      "id": "ADR-005",
+      "title": "Tokenless bridge drives the local claude CLI; SDK is the swap-only fallback",
+      "status": "Superseded by ADR-006",
+      "assertion": "An always-on backlogd runtime is a tokenless bridge (plain TS/Python, zero Claude inference) that drives the official local `claude` CLI under subscription OAuth and writes transparency via the Linear MCP — never the Agent SDK / `claude -p`; the executor is a one-line config swap to an API-key backend so a ToS shift survives without a rewrite; the human stays trigger/cadence-setter (bounded batches, no 24/7 swarm) and this remains a GO-to-explore design that ships no runtime code and does not proceed to a build until NB-376/ADR-004 is honoured and the keyless constraint of ADR-002 holds.",
+      "applies-to": {
+        "domains": [
+          "runtime",
+          "auth",
+          "dependencies",
+          "linear",
+          "agent-identity",
+          "scrum"
+        ],
+        "file-patterns": [
+          "**"
+        ],
+        "decision-types": [
+          "runtime-loop",
+          "hosting",
+          "dependency",
+          "secret-custody",
+          "executor"
+        ]
+      }
+    },
+    {
+      "id": "ADR-006",
+      "title": "Tier-2 locally-hosted agent identity — actor=app via a local listener spawning the local CLI",
+      "status": "Accepted",
+      "assertion": "backlogd's sanctioned always-on identity is Tier-2 run LOCALLY — a local listener daemon (launchd/systemd, never a cloud server) registered as an `actor=app` agent that acks each AgentSession within 10s with an immediate `thought` activity then async-spawns the local `claude` CLI; `actor=app` is a Linear-auth identity that requires NO Anthropic API key, so attended/individual + local CLI stays subscription-legitimate while only fully-unattended 24/7 use draws the API-key executor (a one-line config swap, default ships subscription/attended); the Tier-1 delegate work (NB-390/391/388) REMAINS the shippable-now first rung (identity without autonomy, no daemon); and no daemon is built until ONE spawned local CLI session is proven to auth as the actor=app identity, post an AgentActivity inside the 10s ack window, and run on subscription.",
+      "applies-to": {
+        "domains": [
+          "agent-identity",
+          "linear",
+          "runtime",
+          "auth",
+          "hosting"
+        ],
+        "file-patterns": [
+          "**"
+        ],
+        "decision-types": [
+          "agent-identity",
+          "runtime-loop",
+          "hosting",
+          "secret-custody",
+          "executor"
+        ]
+      }
+    },
+    {
+      "id": "ADR-007",
+      "title": "Persisted on-disk run/state data — gitignored .backlogd/, append-only NDJSON, grow-only versioned schema",
+      "status": "Accepted",
+      "assertion": "Persisted on-disk run/state data lives under the gitignored `.backlogd/` directory as append-only newline-delimited JSON (one record per line), each record carrying a schema `version` field; readers tolerate unknown fields and the schema only ever grows (no field is removed or repurposed in place); `.backlogd/` content is never committed.",
+      "applies-to": {
+        "domains": [
+          "persistence",
+          "runtime",
+          "storage"
+        ],
+        "file-patterns": [
+          "scripts/**",
+          ".backlogd/**",
+          ".gitignore"
+        ],
+        "decision-types": [
+          "data-format",
+          "schema-evolution",
+          "persistence",
+          "storage-location"
+        ]
+      }
+    },
+    {
+      "id": "ADR-008",
+      "title": "Live-surface verification — external-surface claims are specified from and verified against the live surface",
+      "status": "Accepted",
+      "assertion": "Any new or changed claim about how an external surface behaves (the Linear MCP tool surface, the Linear REST/GraphQL API, the Linear UI, or an OAuth/install flow) requires live evidence before the problem is Done — a live probe's output, a screenshot, or a real round-trip against the live surface, explicitly NOT a mocked test or an API call merely returning `created`/`200`; an external-surface claim lacking live evidence is marked as an unverified assumption, never stated as fact.",
+      "applies-to": {
+        "domains": [
+          "linear",
+          "external-surface",
+          "verification",
+          "docs"
+        ],
+        "file-patterns": [
+          "skills/linear/**",
+          "commands/**",
+          "scripts/linear_setup.py",
+          "docs/guides/*-setup.md",
+          "skills/retro/**"
+        ],
+        "decision-types": [
+          "external-surface-claim",
+          "live-evidence",
+          "mcp-behavior",
+          "api-behavior",
+          "ui-behavior",
+          "oauth-flow"
+        ]
+      }
+    },
+    {
+      "id": "ADR-009",
+      "title": "Adopt selected superpowers craft skills by reference, excluding auto-trigger and run-to-completion",
+      "status": "Accepted",
+      "assertion": "backlogd adopts three superpowers craft skills (test-driven-development, verification-before-completion, systematic-debugging) into its developer/tester/reviewer agents by reference (vendor-clean principle + credit obra/MIT, no new always-on plugin dependency), adapted to backlogd's gated model; it explicitly rejects two superpowers stances that fight that model — the aggressive 1%-chance auto-trigger and the run-to-completion (\"execute all tasks without stopping\") rule — and does not adopt superpowers' generic brainstorming or two-stage subagent review, which duplicate backlogd's Linear/standards-aware scope/refiner and its tester+reviewer split.",
+      "applies-to": {
+        "domains": [
+          "craft",
+          "developer",
+          "tester",
+          "reviewer",
+          "verification",
+          "dependencies"
+        ],
+        "file-patterns": [
+          "agents/developer.md",
+          "agents/tester.md",
+          "agents/reviewer.md",
+          "skills/develop/**",
+          "skills/reviewer/**",
+          "docs/specialists.md"
+        ],
+        "decision-types": [
+          "dependency",
+          "craft-skill",
+          "specialist-contract",
+          "agent-identity"
+        ]
+      }
+    }
+  ]
+}
